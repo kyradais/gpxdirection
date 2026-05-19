@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.util.Log;
 
 public class OverlayService extends Service {
 
@@ -16,7 +17,11 @@ public class OverlayService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        Log.d("GPXDIRECTION", "OverlayService started");
+
         String text = intent.getStringExtra("text");
+
+        Log.d("GPXDIRECTION", "TEXT = " + text);
 
         textView = new TextView(this);
 
@@ -39,6 +44,8 @@ public class OverlayService extends Service {
         params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
 
         params.y = 200;
+
+        Log.d("GPXDIRECTION", "ADDING VIEW");
 
         windowManager.addView(textView, params);
 

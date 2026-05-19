@@ -1,10 +1,14 @@
 import React, {useState} from 'react';
+
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  Linking,
+  Platform,
 } from 'react-native';
+
 import OverlayModule from '../native/OverlayModule';
 
 import {pick} from '@react-native-documents/picker';
@@ -12,51 +16,119 @@ import {pick} from '@react-native-documents/picker';
 import GPXParser from '../services/GPXParser';
 
 export default function HomeScreen() {
+
   const [routeData, setRouteData] = useState([]);
 
   const pickGPX = async () => {
+
     try {
+
       const res = await pick({
         type: ['*/*'],
       });
 
-      console.log(res);
+      console.log('PICKED FILE = ', res);
 
       const parsed = await GPXParser.parse(
         res[0].uri,
       );
 
+      console.log('PARSED GPX = ', parsed);
+
       setRouteData(parsed);
+
     } catch (err) {
-      console.log(err);
+
+      console.log('GPX ERROR = ', err);
+
     }
+
+  };
+
+  const requestOverlayPermission = async () => {
+
+    try {
+
+      if (Platform.OS === 'android') {
+
+        console.log('OPENING SETTINGS');
+
+        await Linking.openSettings();
+
+      }
+
+    } catch (err) {
+
+      console.log('OVERLAY PERMISSION ERROR = ', err);
+
+    }
+
+  };
+
+  const startOverlay = async () => {
+
+    try {
+
+      console.log('START OVERLAY CLICKED');
+
+      await requestOverlayPermission();
+
+      console.log('CALLING NATIVE MODULE');
+
+      OverlayModule.startOverlay(
+        '⬅ Left 120m',
+      );
+
+    } catch (err) {
+
+      console.log('OVERLAY START ERROR = ', err);
+
+    }
+
   };
 
   return (
+
     <View style={styles.container}>
-      <Text style={styles.title}>GPX Direction</Text>
 
-      {/* <TouchableOpacity style={styles.button} onPress={pickGPX}>
-        <Text style={styles.buttonText}>Import GPX</Text>
-      </TouchableOpacity> */}
+      <Text style={styles.title}>
+        GPX Direction
+      </Text>
 
+      {/* IMPORT GPX */}
+      {/* 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => {
-          OverlayModule.startOverlay('⬅ Left 120m');
-        }}>
+        onPress={pickGPX}>
+        <Text style={styles.buttonText}>
+          Import GPX
+        </Text>
+      </TouchableOpacity>
+      */}
+
+      {/* START OVERLAY */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={startOverlay}>
+
         <Text style={styles.buttonText}>
           Start Overlay
         </Text>
-      </TouchableOpacity>  
+
+      </TouchableOpacity>
+
       <Text style={styles.info}>
         Total Point: {routeData.length}
       </Text>
+
     </View>
+
   );
+
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -72,7 +144,8 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: '#2b7cff',
-    padding: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     borderRadius: 12,
   },
 
@@ -85,4 +158,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: 'white',
   },
+
 });
