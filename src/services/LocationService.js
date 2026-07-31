@@ -1,22 +1,57 @@
 import Geolocation from 'react-native-geolocation-service';
 
 const LocationService = {
+
+  watchId: null,
+
   start: callback => {
-    Geolocation.watchPosition(
-      position => {
-        callback(position);
-      },
-      error => {
-        console.log(error);
-      },
-      {
-        enableHighAccuracy: true,
-        distanceFilter: 5,
-        interval: 3000,
-        fastestInterval: 2000,
-      },
-    );
+
+    this.watchId =
+      Geolocation.watchPosition(
+
+        position => {
+
+          callback({
+            latitude:
+              position.coords.latitude,
+
+            longitude:
+              position.coords.longitude,
+          });
+
+        },
+
+        error => {
+
+          console.log(
+            'GPS ERROR = ',
+            error,
+          );
+
+        },
+
+        {
+          enableHighAccuracy: true,
+          distanceFilter: 1,
+          interval: 1000,
+          fastestInterval: 1000,
+          showsBackgroundLocationIndicator: true,
+        },
+      );
   },
+
+  stop: () => {
+
+    if (this.watchId !== null) {
+
+      Geolocation.clearWatch(
+        this.watchId,
+      );
+
+    }
+
+  },
+
 };
 
 export default LocationService;
